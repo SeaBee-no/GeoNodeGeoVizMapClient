@@ -29,6 +29,7 @@ def get_base_left_topbar_menu(context):
     return [
         {
             "label": "Data",
+            "faIcone": "<i class='fa fa-solid fa-database'></i>",
             "type": "dropdown",
             "items": [
                 {
@@ -46,22 +47,26 @@ def get_base_left_topbar_menu(context):
         {
             "type": "link",
             "href": "/catalogue/#/search/?f=map",
-            "label": "Maps"
+            "label": "Maps",
+            "faIcone": "<i class='fa fa-solid fa-map'></i>",
         },
         {
             "type": "link",
             "href": "/catalogue/#/search/?f=geostory",
-            "label": "GeoStories"
+            "label": "GeoStories",
+            "faIcone": "<i class='fa fa-solid fa-globe'></i>",
         },
         {
             "type": "link",
             "href": "/catalogue/#/search/?f=dashboard",
-            "label": "Dashboards"
+            "label": "Dashboards",
+            "faIcone": "<i class='fa fa-solid fa-desktop'></i>",
         },
         {
             "type": "link",
             "href": "/catalogue/#/search/?f=featured",
-            "label": "Featured"
+            "label": "Featured",
+            "faIcone": "<i class='fa fa-solid fa-star'></i>",
         }
     ]
 
@@ -77,11 +82,13 @@ def get_base_right_topbar_menu(context):
     home = {
         "type": "link",
         "href": "/",
-        "label": "Home"
+        "label": "Home",
+        "faIcone": "<i class='fa fa-solid fa-home'></i>",
     }
     user = context.get('request').user
     about = {
             "label": "About",
+             "faIcone": "<i class='fa fa-solid fa-info'></i>",
             "type": "dropdown",
             "items": [
                 {
@@ -130,11 +137,13 @@ def get_user_menu(context):
         return [
             {
                 "label": "Register",
+                 "faIcone": "<i class='fa  fa-user-plus'></i>",
                 "type": "link",
                 "href": "/account/signup/?next=/"
             } if settings.ACCOUNT_OPEN_SIGNUP and not Configuration.load().read_only else None,
             {
                 "label": "Sign in",
+                "faIcone": "<span class='glyphicon glyphicon-log-in'></span>",
                 "type": "link",
                 "href": "/account/login/?next=/"
             },

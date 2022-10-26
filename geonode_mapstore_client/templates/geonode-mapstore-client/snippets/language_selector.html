@@ -54,7 +54,7 @@
                     class="dropdown-toggle btn btn-{{variant|default:'default'}}"
                     data-toggle="dropdown"
                 >
-                    {{ lang_info.name_local }}
+                <i class="fa fa-solid fa-language"></i> {{ lang_info.name_local }}
                 </button>
                 <ul class="dropdown-menu{% if align_right %} dropdown-menu-right{% endif %}" aria-labelledby="gn-language-selector">
                     {% for lang in LANGUAGES %}

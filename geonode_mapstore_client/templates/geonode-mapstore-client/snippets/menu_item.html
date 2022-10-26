@@ -8,7 +8,8 @@
                 target="{{ menu_item.target }}"
                 class="nav-link btn btn-{{variant|default:'default'}}"
             >
-                {% trans menu_item.label %}
+            {{ menu_item.faIcone | safe }} {% trans menu_item.label %}
+               
             </a>
         </li>
     {% endif %}
@@ -28,7 +29,7 @@
                     data-toggle="dropdown"
                 >
                     {% if menu_item.label %}
-                        {% trans menu_item.label %}
+                        {{ menu_item.faIcone | safe }} {% trans menu_item.label %}
                     {% endif %}
                     {% if menu_item.image %}
                         <img src="{{ menu_item.image }}">

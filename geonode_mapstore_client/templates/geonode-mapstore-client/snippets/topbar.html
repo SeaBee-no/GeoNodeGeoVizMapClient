@@ -24,7 +24,7 @@
                     <ul
                         class="dropdown-menu"
                         aria-labelledby="gn-topbar-small-menu"
-                    >
+                    > 
                         {% for menu_item in BASE_TOPBAR_MENU_LEFT %}
                             {% include './menu_item_compact.html' with menu_item=menu_item %}
                         {% endfor %}
@@ -52,6 +52,7 @@
             </div>
             <div class="gn-menu-content-center">
                 {% block center_menu %}
+            
                 {% endblock %}
             </div>
             <div class="gn-menu-content-right">

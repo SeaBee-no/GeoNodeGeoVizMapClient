@@ -93,6 +93,11 @@ def get_base_right_topbar_menu(context):
             "items": [
                 {
                     "type": "link",
+                    "href": "/about/",
+                    "label": "About"
+                },
+                {
+                    "type": "link",
                     "href": "/people/",
                     "label": "People"
                 },

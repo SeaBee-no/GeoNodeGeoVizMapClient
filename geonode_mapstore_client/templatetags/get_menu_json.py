@@ -37,6 +37,11 @@ def get_base_left_topbar_menu(context):
                     "href": "/catalogue/#/search/?f=dataset",
                     "label": "Datasets"
                 },
+                 {
+                    "type": "link",
+                    "href": "/testpage",
+                    "label": "DDC"
+                },
                 {
                     "type": "link",
                     "href": "/catalogue/#/search/?f=document",

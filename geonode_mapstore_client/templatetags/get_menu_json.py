@@ -39,8 +39,8 @@ def get_base_left_topbar_menu(context):
                 },
                  {
                     "type": "link",
-                    "href": "/testpage",
-                    "label": "DDC"
+                    "href": "/ddc",
+                    "label": "Drone Data Collector"
                 },
                 {
                     "type": "link",

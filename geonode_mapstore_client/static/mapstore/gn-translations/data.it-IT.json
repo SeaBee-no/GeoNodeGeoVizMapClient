@@ -60,6 +60,8 @@
             "noPublicContentContent": "Questo catalogo non ha risorse pubbliche. <br/> Puoi <a href=\"/account/signup/?next=/\">registrarti</a> o <a href=\"/account/login/?next=/\">accedere</a> per navigare i contenuti.",
             "noContentYetTitle": "Benvenuto su GeoNode",
             "noContentYetContent": "Questo catalogo non ha risorse pubblicate. <br/> Stiamo lavorando per aggiungere al catalogo nuove risorse.",
+            "errorResourcePageTitle": "Errore nel caricamento della pagina",
+            "errorResourcePageContent": "La pagina delle risorse selezionate non è disponibile",
             "resourcesFound": "{count, plural, =0 {0 Risorse trovate} =1 {1 Risorsa trovata} other {# Risorse trovate}}",
             "filterApplied": "{count, plural, =0 {0 filtri applicati} =1 {1 filtro applicato} other {# filtri applicati}}",
             "noResultsWithFilterTitle": "Nessun risultato",
@@ -78,7 +80,6 @@
             "logOut": "Esci",
             "terms": "Termini e condizioni",
             "privacy": "Privacy",
-            "extent": "Estensione",
             "enableFilterByExtent": "Abilita filtro per estensione",
             "advancedSearch": "Ricerca avanzata",
             "apply": "Applica",
@@ -116,6 +117,8 @@
             "customFilterExample": "Filtro personalizzato (Global)",
             "copiedResourceUrl": "Url della risorsa copiato!",
             "copyResourceUrl": "Copia url della risorsa",
+            "copiedCapabilitiesUrl": "URL funzionalità WMS copiato!",
+            "copyCapabilitiesUrl": "Copia l'URL delle funzionalità WMS",
             "open": "Apri",
             "share": "Condividi",
             "update": "Aggiorna",
@@ -131,7 +134,9 @@
             "search": "Cerca...",
             "permissionsMissing": "Non hai i permessi per visualizzare o scaricare la risorsa",
             "filter": "Filtra",
-            "noPreview": "Un'anteprima non è disponibile per questa risorsa"
+            "noPreview": "Un'anteprima non è disponibile per questa risorsa",
+            "na": "N/D",
+            "emptyAccordion": "Nessun elemento da visualizzare"
         },
         "viewer": {
             "document": {
@@ -297,7 +302,41 @@
             "embeddashboard": "Incorpora questo Dashboard",
             "directLink": "Collegamento Diretto",
             "iso": "Metadati ISO",
-            "dublinCore": "Metadati di Dublin Core"
+            "dublinCore": "Metadati di Dublin Core",
+            "owner": "Proprietario",
+            "date": "Data",
+            "creation": "Creazione",
+            "publication": "Pubblicazione",
+            "revision": "Revisione",
+            "created": "Aggiunta al catalogo",
+            "published": "Pubblicata",
+            "lastModified": "Ultima modifica nel catalogo",
+            "resourceType": "Tipo di risorsa",
+            "category": "Categoria",
+            "pointOfContact": "Punto di contatto",
+            "keywords": "Parole chiave",
+            "regions": "Regioni",
+            "license": "Licenza",
+            "attribution": "Attribuzione",
+            "restriction": "Restrizione",
+            "edition": "Edizione",
+            "maintenanceFrequency": "Frequenza di manutenzione",
+            "language": "Lingua",
+            "purpose": "Scopo",
+            "dataQuality": "Qualità dei dati",
+            "temporalExtent": "Estensione temporale",
+            "spatialRepresentationType": "Tipo di rappresentazione spaziale",
+            "supplementalInformation": "Informazioni supplementari",
+            "viewFullMetadata": "Visualizza i metadati completi",
+            "abstract": "Astratto",
+            "readMore": "Leggi di più",
+            "readLess": "Leggi di meno",
+            "linkedResources": "Risorse collegate",
+            "extent": "Estensione",
+            "dateFilter": {
+                "from": "Data da",
+                "to": "Data a"
+            }
         }
     }
 }

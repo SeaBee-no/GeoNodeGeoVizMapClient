@@ -16,6 +16,7 @@ import Theme from '@mapstore/framework/components/theme/Theme';
 import { ErrorBoundary } from 'react-error-boundary';
 import history from '@mapstore/framework/stores/History';
 import ErrorFallback from '@js/components/ErrorFallback';
+import url from 'url';
 
 export const withRoutes = (routes) => (Component) => {
     const WithRoutes = forwardRef((props, ref) => {
@@ -57,8 +58,10 @@ const Router = forwardRef(({
     themeCfg,
     loaderComponent,
     geoNodeConfiguration,
-    lazyPlugins
+    user
 }, ref) => {
+    const urlHash = url.parse(window.location.href, true).hash;
+
     return (
         <>
             <ThemeLoader
@@ -84,6 +87,10 @@ const Router = forwardRef(({
                                 {routes.map((route, i) => {
                                     const routeConfig = route.pageConfig || {};
                                     const Component = route.component;
+                                    if (route.protectedRoute && !user && urlHash === route.hash) {
+                                        window.location.href = `/account/login/?next=${encodeURIComponent(window.location.pathname + urlHash)}`;
+                                        return null;
+                                    }
                                     return (
                                         <Route
                                             key={(route.name || route.path) + i}
@@ -93,7 +100,6 @@ const Router = forwardRef(({
                                                 <Component
                                                     {...props}
                                                     name={route.name}
-                                                    lazyPlugins={lazyPlugins}
                                                     plugins={plugins}
                                                     pluginsConfig={pluginsConfig}
                                                     loaderComponent={loaderComponent}
@@ -133,7 +139,8 @@ Router.defaultProps = {
         current: 'en-US'
     },
     className: 'app-router fill',
-    geoNodeConfiguration: {}
+    geoNodeConfiguration: {},
+    user: null
 };
 
 export default Router;

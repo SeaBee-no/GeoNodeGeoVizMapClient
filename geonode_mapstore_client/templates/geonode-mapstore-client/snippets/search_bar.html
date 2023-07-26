@@ -126,7 +126,8 @@
                     '?page=' + options.page +
                     '&search=' + options.value +
                     '&search_fields=title' +
-                    '&search_fields=abstract';
+                    '&search_fields=abstract' +
+                    '&filter{metadata_only}=false';
                     request = $.ajax({
                         url: url,
                         type: 'GET',
@@ -198,12 +199,14 @@
             });
 
             function hashChange() {
-                const newQParam = getQParamFromHash();
-                if (!value || newQParam !== value) {
-                    searchInput.value = newQParam;
-                    value = newQParam;
+                if (window.location.pathname.replace(/\//g, '') === 'catalogue') {
+                    const newQParam = getQParamFromHash();
+                    if (!value || newQParam !== value) {
+                        searchInput.value = newQParam;
+                        value = newQParam;
+                    }
+                    searchClear.style.display = newQParam ? 'block' : 'none';
                 }
-                searchClear.style.display = newQParam ? 'block' : 'none';
             }
 
             window.addEventListener('hashchange', hashChange, false);

@@ -7,9 +7,10 @@
  */
 
 import React from 'react';
-import { createPlugin } from '@mapstore/framework/utils/PluginsUtils';
+import { createPlugin, getMonitoredState } from '@mapstore/framework/utils/PluginsUtils';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import { getConfigProp } from '@mapstore/framework/utils/ConfigUtils';
 import DetailsPanel from '@js/components/DetailsPanel';
 import { userSelector } from '@mapstore/framework/selectors/security';
 import {
@@ -43,6 +44,8 @@ import Message from '@mapstore/framework/components/I18N/Message';
 import { layersSelector } from '@mapstore/framework/selectors/layers';
 import { mapSelector } from '@mapstore/framework/selectors/map';
 import { resourceHasPermission } from '@js/utils/ResourceUtils';
+import { parsePluginConfigExpressions } from '@js/utils/MenuUtils';
+import detailViewerEpics from '@js/epics/detailviewer';
 
 const ConnectedDetailsPanel = connect(
     createSelector([
@@ -110,7 +113,62 @@ const ConnectedButton = connect(
     }
 )((ButtonViewer));
 
+/**
+* @module DetailViewer
+*/
 
+/**
+ * render a panel for detail information about a resource inside the viewer pages
+ * @name DetailViewer
+ * @prop {array} tabs array of tab object representing the structure of the displayed info properties
+ * @example
+ * {
+ *  "name": "DetailViewer",
+ *  "cfg": {
+ *      "tabs": [
+ *          {
+ *              "type": "tab",
+ *              "id": "info",
+ *              "labelId": "gnviewer.info",
+ *              "items": [
+ *                  {
+ *                      "type": "text",
+ *                      "labelId": "gnviewer.title",
+ *                      "value": "{context.get(state('gnResourceData'), 'title')}"
+ *                  },
+ *                  {
+ *                      "type": "link",
+ *                      "labelId": "gnviewer.owner",
+ *                      "href": "{'/people/profile/' + context.get(state('gnResourceData'), 'owner.username')}",
+ *                      "value": "{context.getUserResourceName(context.get(state('gnResourceData'), 'owner'))}",
+ *                      "disableIf": "{!context.get(state('gnResourceData'), 'owner.username')}"
+ *                  },
+ *                  {
+ *                      "type": "date",
+ *                      "format": "MMMM Do YYYY",
+ *                      "labelId": "gnviewer.published",
+ *                      "value": "{context.get(state('gnResourceData'), 'date')}"
+ *                  },
+ *                  {
+ *                      "type": "query",
+ *                      "labelId": "gnviewer.resourceType",
+ *                      "value": "{context.get(state('gnResourceData'), 'resource_type')}",
+ *                      "pathname": "/",
+ *                      "query": {
+ *                          "f": "{context.get(state('gnResourceData'), 'resource_type')}"
+ *                      }
+ *                  },
+ *                  {
+ *                      "type": "html",
+ *                      "labelId": "gnviewer.supplementalInformation",
+ *                      "value": "{context.get(state('gnResourceData'), 'supplemental_information')}"
+ *                  }
+ *              ]
+ *          }
+ *      ]
+ *  }
+ * }
+ */
 function DetailViewer({
     location,
     enabled,
@@ -120,9 +178,13 @@ function DetailViewer({
     canEdit,
     hide,
     user,
-    onClose
+    onClose,
+    monitoredState,
+    queryPathname = '/',
+    tabs = []
 }) {
 
+    const parsedConfig = parsePluginConfigExpressions(monitoredState, { tabs });
 
     const handleTitleValue = (val) => {
         onEditResource(val);
@@ -166,6 +228,8 @@ function DetailViewer({
                 activeEditMode={enabled && canEdit}
                 enableFavorite={!!user}
                 formatHref={handleFormatHref}
+                tabs={parsedConfig.tabs}
+                pathname={queryPathname}
             />
         </OverlayContainer>
     );
@@ -179,13 +243,15 @@ const DetailViewerPlugin = connect(
             canEditResource,
             isNewResource,
             getResourceId,
-            userSelector
+            userSelector,
+            state => getMonitoredState(state, getConfigProp('monitorState'))
         ],
-        (enabled, canEdit, isNew, resourcePk, user) => ({
+        (enabled, canEdit, isNew, resourcePk, user, monitoredState) => ({
             enabled,
             canEdit,
             hide: isNew || !resourcePk,
-            user
+            user,
+            monitoredState
         })
     ),
     {
@@ -204,7 +270,7 @@ export default createPlugin('DetailViewer', {
             Component: ConnectedButton
         }
     },
-    epics: {},
+    epics: detailViewerEpics,
     reducers: {
         gnresource,
         controls

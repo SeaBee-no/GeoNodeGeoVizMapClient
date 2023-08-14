@@ -55,6 +55,12 @@ def get_base_left_topbar_menu(context):
             "label": "Maps",
             "faIcone": "<i class='fa fa-solid fa-map'></i>",
         },
+          {
+            "type": "link",
+            "href": "/droneViz",
+            "label": "GeoStories",
+            "faIcone": "<i class='fa fa-solid fa-layer-group'></i>",
+        },
         {
             "type": "link",
             "href": "/catalogue/#/search/?f=geostory",

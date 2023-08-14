@@ -58,8 +58,8 @@ def get_base_left_topbar_menu(context):
           {
             "type": "link",
             "href": "/droneViz",
-            "label": "GeoStories",
-            "faIcone": "<i class='fa fa-solid fa-layer-group'></i>",
+            "label": "GeoVizulization",
+            "faIcone": "<i class='fa fa-solid fa-globe'></i>",
         },
         {
             "type": "link",

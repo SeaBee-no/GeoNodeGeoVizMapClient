@@ -49,13 +49,7 @@ def get_base_left_topbar_menu(context):
                 } if not is_mobile else None
             ]
         },
-        {
-            "type": "link",
-            "href": "/catalogue/#/search/?f=map",
-            "label": "Maps",
-            "faIcone": "<i class='fa fa-solid fa-map'></i>",
-        },
-          {
+             {
             "type": "link",
             "href": "/droneViz",
             "label": "GeoVizulization",
@@ -63,9 +57,15 @@ def get_base_left_topbar_menu(context):
         },
         {
             "type": "link",
+            "href": "/catalogue/#/search/?f=map",
+            "label": "Maps",
+            "faIcone": "<i class='fa fa-solid fa-map'></i>",
+        },
+        {
+            "type": "link",
             "href": "/catalogue/#/search/?f=geostory",
             "label": "GeoStories",
-            "faIcone": "<i class='fa fa-solid fa-globe'></i>",
+            "faIcone": "<i class='fa fa-solid fa-bullhorn'></i>",
         },
         {
             "type": "link",

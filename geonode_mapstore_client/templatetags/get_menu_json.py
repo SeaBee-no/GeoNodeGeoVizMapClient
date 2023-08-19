@@ -52,7 +52,7 @@ def get_base_left_topbar_menu(context):
              {
             "type": "link",
             "href": "/droneViz",
-            "label": "Geovisualization",
+            "label": "Geovisualisation",
             "faIcone": "<i class='fa fa-solid fa-globe'></i>",
         },
         {

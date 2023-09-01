@@ -25,6 +25,10 @@ import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
+/**
+* @module selectors/resource
+*/
+
 export const getResourceId = (state) => {
     const resourceId = state?.gnresource?.id;
     const resourcePk = state?.gnresource?.data?.pk;
@@ -99,6 +103,10 @@ export const getPermissionsPayload = (state) => {
     };
 };
 
+const inheritsPerms = (user = null, groups = []) => {
+    return user && groups.some(group => user.info.groups.some(userGroup => userGroup === group.name) && group.permissions === 'manage') || false;
+};
+
 export const canEditPermissions = (state) => {
     const compactPermissions = getCompactPermissions(state);
     const users = compactPermissions.users || [];
@@ -106,9 +114,7 @@ export const canEditPermissions = (state) => {
     const organizations = compactPermissions.organizations || [];
     const user = state?.security?.user;
     const { permissions } = user && users.find(({ id }) => id === user.pk) || {};
-    const { permissions: allowedGroups } = user && groups.find((group) => user.info.groups.includes(group.name)) || {};
-    const { permissions: allowedOrganizations } = user && organizations.find((organization) => user.info.groups.includes(organization.name)) || {};
-    return ['owner', 'manage'].includes(permissions) || ['manage'].includes(allowedGroups) || ['manage'].includes(allowedOrganizations);
+    return ['owner', 'manage'].includes(permissions) || inheritsPerms(user, groups) || inheritsPerms(user, organizations);
 };
 
 export const getSelectedLayerPermissions = (state) => {
@@ -148,7 +154,7 @@ function removeProperty(value, paths) {
     return value;
 }
 
-function isMapCenterEqual(initialCenter, currentCenter) {
+function isMapCenterEqual(initialCenter = {}, currentCenter = {}) {
     const CENTER_EPS = 1e-12;
     return initialCenter.crs === currentCenter.crs && Math.abs(initialCenter.x - currentCenter.x) < CENTER_EPS && Math.abs(initialCenter.y - currentCenter.y) < CENTER_EPS;
 }
@@ -173,17 +179,45 @@ function isResourceDataEqual(state, initialData = {}, currentData = {}) {
     }
     case ResourceTypes.DASHBOARD: {
         const initialWidgets = (initialData?.widgets || []);
+
+        // check if the current dashboard was built after mapstore update
+        // the mapstore submodule update introduces breaking changes which must be catered for
+        // If the dashboard was created with the new features from mapstore, it supports multiple map widgets
+        const supportsMultipleWidgets = initialWidgets.every((widget) => {
+            if (widget.widgetType === 'map') {
+                return !!widget.maps;
+            }
+            return true;
+        });
         const isWidgetMapCenterChanged = !!(currentData?.widgets || [])
             .find((widget) => {
                 if (widget.widgetType === 'map') {
                     const initialWidget = initialWidgets.find(({ id }) => id === widget.id);
-                    return initialWidget ? !isMapCenterEqual(initialWidget?.map?.center, widget?.map?.center) : true;
+                    const currentWidgets = [...widget.maps];
+                    const allCentresEqual = supportsMultipleWidgets ? currentWidgets.every((mapWidget) => {
+                        const relatedWidget = initialWidget?.maps?.find(w => w.mapId === mapWidget.mapId) || {};
+                        return isMapCenterEqual(relatedWidget?.center, mapWidget?.center);
+                    }) : isMapCenterEqual(initialWidget?.map?.center, currentWidgets[0].center);
+                    return initialWidget ? !allCentresEqual : true;
                 }
                 return false;
             });
+        const newCurrentData = supportsMultipleWidgets ? currentData : {
+            ...currentData,
+            widgets: currentData.widgets.map(widget => {
+                if (!!widget.maps) {
+                    const mapList = widget.maps;
+                    delete widget.maps;
+                    widget.map = mapList[0];
+                }
+                return widget;
+            })
+        };
+        const initialListItemsToRemove = ['bbox', 'size', 'center', 'layouts'];
+        const currentListItemsToRemove = !supportsMultipleWidgets ? ['bbox', 'size', 'center', 'layouts', 'mapId', 'dependenciesMap', 'selectedMapId'] : initialListItemsToRemove;
         return isEqual(
-            removeProperty(initialData, ['bbox', 'size', 'center', 'layouts']),
-            removeProperty(currentData, ['bbox', 'size', 'center', 'layouts'])
+            removeProperty(initialData, initialListItemsToRemove),
+            removeProperty(newCurrentData, currentListItemsToRemove)
         ) && !isWidgetMapCenterChanged;
     }
     default:
@@ -227,6 +261,36 @@ export const getResourceDirtyState = (state) => {
  * @param {Object} state App state
  * @returns {Array} Array of geonode resources
  */
-export const getGeonodeResourceDataFromGeostory = (state) => get(currentStorySelector(state), 'resources', []).filter(res => res?.data?.sourceId === 'geonode');
+export const getGeoNodeResourceDataFromGeoStory = (state) => get(currentStorySelector(state), 'resources', [])
+    .filter(res => res?.data?.sourceId === 'geonode')
+    .reduce((acc, resource) => {
+        if (['image', 'video'].includes(resource.type) && resource.id) {
+            return { ...acc, documents: [...acc.documents, resource.id] };
+        }
+        if (resource.type === 'map' && resource.id) {
+            return { ...acc, maps: [...acc.maps, resource.id] };
+        }
+        return acc;
+    }, { maps: [], documents: [] });
 
-export const getGeonodeResourceFromDashboard = (state) => get(originalDataSelector(state), 'widgets', []).filter(widget => !!(widget.widgetType === 'map' && widget.map?.hasOwnProperty('extraParams')));
+export const getGeoNodeResourceFromDashboard = (state) => get(originalDataSelector(state), 'widgets', [])
+    .reduce((acc, { maps, ...widget }) => {
+        if (maps && widget.widgetType === 'map') {
+            return {
+                ...acc,
+                maps: [
+                    ...acc.maps,
+                    ...maps
+                        .filter((map) => !!map?.extraParams?.pk)
+                        .map((map) => map.extraParams.pk)
+                ]
+            };
+        }
+        if (widget.widgetType === 'map' && widget.map?.extraParams?.pk) {
+            return {
+                ...acc,
+                maps: [ ...acc.maps, widget.map?.extraParams?.pk ]
+            };
+        }
+        return acc;
+    }, { maps: [] });

@@ -8,6 +8,8 @@
 
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import { handleExpression } from '@mapstore/framework/utils/PluginsUtils';
+import { getPluginsContext } from '@js/utils/PluginsContextUtils';
 
 function inAllowedGroups(user, allowedRoles) {
     const groups = user?.info?.groups || [];
@@ -93,4 +95,11 @@ export const reduceArrayRecursive = (arr, func) => {
         },
         []
     );
+};
+
+export const parsePluginConfigExpressions = (monitoredState, payload, { filterFunc = item => !item.disableIf } = {}) => {
+    const [config] = reduceArrayRecursive([
+        mapObjectFunc(value => handleExpression((path) => get(monitoredState, path), getPluginsContext(), value))(payload)
+    ], filterFunc);
+    return config;
 };

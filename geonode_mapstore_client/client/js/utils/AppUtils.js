@@ -24,13 +24,19 @@ import { mapSelector } from '@mapstore/framework/selectors/map';
 import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
+import isFunction from 'lodash/isFunction';
 
 import url from 'url';
 import axios from '@mapstore/framework/libs/ajax';
+import moment from 'moment';
 import { addLocaleData } from 'react-intl';
 import { setViewer } from '@mapstore/framework/utils/MapInfoUtils';
 
-let epicsCache = {};
+// we need this configuration set for specific components that use recompose/rxjs streams
+import { setObservableConfig } from 'recompose';
+import rxjsConfig from 'recompose/rxjsObservableConfig';
+setObservableConfig(rxjsConfig);
+
 let actionListeners = {};
 // Target url here to fix proxy issue
 let targetURL = '';
@@ -49,15 +55,6 @@ const getTargetUrl = () => {
     targetURL = `${protocol}//${host}`;
     return targetURL;
 };
-
-export const storeEpicsCache = (epics) => {
-    Object.keys(epics).forEach((key) => {
-        epicsCache[key] = true;
-    });
-};
-
-export const getEpicCache = (name) => epicsCache[name];
-export const setEpicCache = (name) => { epicsCache[name] = true; };
 
 export function getVersion() {
     if (!__DEVTOOLS__) {
@@ -158,9 +155,13 @@ function setupLocale(locale) {
                         });
                     });
             }
+            // setup locale for moment
+            moment.locale(locale);
             return locale;
         });
 }
+
+let apiPluginsConfig;
 
 export function setupConfiguration({
     localConfig,
@@ -203,6 +204,89 @@ export function setupConfiguration({
     // globlal window interface to interact with the django page
     const actionTrigger = generateActionTrigger(LOCATION_CHANGE);
     // similar implementation of MapStore2 API without the create part
+    /**
+     * @global
+     * @property {function} getMapState return the map state if available
+     * @property {function} triggerAction dispatch an action
+     * @property {function} onAction add listener to an action
+     * @property {function} offAction remove listener to an action
+     * @example
+     * <!--
+     * access to mapstore api
+     * -->
+     * <script>
+     *  window.addEventListener('mapstore:ready', function(event) {
+     *      const msAPI = event.detail;
+     *  });
+     * </script>
+     *
+     * @example
+     * <!--
+     * use mapstore api onAction method to listen to an action
+     * this example works only in a page with the map plugin (eg. dataset and map viewers)
+     * -->
+     * <script>
+     *  window.addEventListener('mapstore:ready', function(event) {
+     *      const msAPI = event.detail;
+     *      function onChangeMapView(action) {
+     *          // read parameters dispatched by the action
+     *          const center = action.center;
+     *          console.log(center);
+     *          // get all the current stored map state
+     *          const currentMapState = msAPI.getMapState();
+     *          console.log(currentMapState);
+     *      }
+     *      // listen on map view changes
+     *      msAPI.onAction('CHANGE_MAP_VIEW', onChangeMapView);
+     *  });
+     * </script>
+     *
+     * @example
+     * <!--
+     * use mapstore api offAction method to listen to an action only once
+     * this example works only in a page with the map plugin (eg. dataset and map viewers)
+     * -->
+     * <script>
+     *  window.addEventListener('mapstore:ready', function(event) {
+     *      const msAPI = event.detail;
+     *      function onChangeMapView(action) {
+     *          // read parameters dispatched by the action
+     *          const center = action.center;
+     *          console.log(center);
+     *          // ...
+     *          // remove the same action
+     *          msAPI.offAction('CHANGE_MAP_VIEW', onChangeMapView);
+     *      }
+     *      // listen on map view changes
+     *      msAPI.onAction('CHANGE_MAP_VIEW', onChangeMapView);
+     *  });
+     * </script>
+     *
+     * @example
+     * <!--
+     * use mapstore api triggerAction method to dispatch an action
+     * this example works only in a page with the map plugin (eg. dataset and map viewers)
+     * -->
+     * <button id="custom-zoom-button">Zoom to extent</button>
+     * <script>
+     *  window.addEventListener('mapstore:ready', function(event) {
+     *      const msAPI = event.detail;
+     *      const button = document.querySelector('#custom-zoom-button');
+     *      button.addEventListener('click', function() {
+     *          msAPI.triggerAction({
+     *              type: 'ZOOM_TO_EXTENT',
+     *              crs: 'EPSG:4326',
+     *              extent: {
+     *                  minx: -10,
+     *                  miny: -10,
+     *                  maxx: 10,
+     *                  maxy: 10
+     *              }
+     *          });
+     *      });
+     *  });
+     * </script>
+     */
     window.MapStoreAPI = {
         ready: true,
         getMapState: function() {
@@ -219,8 +303,13 @@ export function setupConfiguration({
                 .filter((l) => l !== listener);
             actionListeners[type] = listeners;
         },
-        setGetFeatureInfoViewer: setViewer
+        setGetFeatureInfoViewer: setViewer,
+        setPluginsConfig: (pluginsConfig) => { apiPluginsConfig = pluginsConfig; }
     };
+    const mapstoreReady = new CustomEvent('mapstore:ready', {
+        detail: window.MapStoreAPI
+    });
+    window.dispatchEvent(mapstoreReady);
     if (window.onInitMapStoreAPI) {
         window.onInitMapStoreAPI(window.MapStoreAPI, geoNodePageConfig);
     }
@@ -234,6 +323,7 @@ export function setupConfiguration({
             pluginsConfigKey: query.config || geoNodePageConfig.pluginsConfigKey,
             mapType: geoNodePageConfig.mapType,
             settings: localConfig.geoNodeSettings,
+            MapStoreAPI: window.MapStoreAPI,
             onStoreInit: (store) => {
                 store.addActionListener((action) => {
                     const act = action.type === 'PERFORM_ACTION' && action.action || action; // Needed to works also in debug
@@ -250,12 +340,8 @@ export function setupConfiguration({
         }));
 }
 
-export function getThemeLayoutSize(width) {
-    if (width < 968) {
-        return 'sm';
-    }
-    if (width < 1400) {
-        return 'md';
-    }
-    return 'lg';
-}
+export const getPluginsConfigOverride = (pluginsConfig) => isFunction(apiPluginsConfig)
+    ? apiPluginsConfig(pluginsConfig)
+    : isObject(apiPluginsConfig)
+        ? apiPluginsConfig
+        : pluginsConfig;

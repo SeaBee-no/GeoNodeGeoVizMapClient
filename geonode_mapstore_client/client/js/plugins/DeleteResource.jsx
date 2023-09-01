@@ -10,6 +10,8 @@ import React from 'react';
 import { createPlugin } from '@mapstore/framework/utils/PluginsUtils';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import Dropdown from '@js/components/Dropdown';
+import FaIcon from '@js/components/FaIcon';
 import Message from '@mapstore/framework/components/I18N/Message';
 import Button from '@js/components/Button';
 import ResizableModal from '@mapstore/framework/components/misc/ResizableModal';
@@ -20,14 +22,41 @@ import { processResources } from '@js/actions/gnresource';
 import ResourceCard from '@js/components/ResourceCard';
 import { ProcessTypes } from '@js/utils/ResourceServiceUtils';
 import Loader from '@mapstore/framework/components/misc/Loader';
+import controls from '@mapstore/framework/reducers/controls';
+import { isLoggedIn } from '@mapstore/framework/selectors/security';
+import { hashLocationToHref } from '@js/utils/SearchUtils';
 
+const simulateAClick = (href) => {
+    const a = document.createElement('a');
+    a.setAttribute('href', href);
+    a.click();
+};
+
+/**
+* @module DeleteResource
+*/
+
+/**
+ * enable button or menu item to delete a specific resource
+ * @name DeleteResource
+ * @prop {string|boolean} redirectTo path to redirect after delete, if false will not redirect
+ * @example
+ * {
+ *  "name": "DeleteResource",
+ *  "cfg": {
+ *      "redirectTo": false
+ *  }
+ * }
+ */
 function DeleteResourcePlugin({
     enabled,
     resources = [],
     onClose = () => {},
     onDelete = () => {},
     redirectTo = '/',
-    loading
+    loading,
+    location,
+    selectedResource
 }) {
     return (
         <Portal>
@@ -46,7 +75,17 @@ function DeleteResourcePlugin({
                     {
                         text: <Message msgId="gnviewer.deleteResourceYes" msgParams={{ count: resources.length }} />,
                         bsStyle: 'danger',
-                        onClick: () => onDelete(resources, redirectTo)
+                        onClick: () => {
+                            const resourcesPk = resources.map(({ pk }) => pk);
+                            if (!redirectTo && selectedResource?.pk && resourcesPk.includes(selectedResource.pk)) {
+                                // this is needed to close the panel
+                                simulateAClick(hashLocationToHref({
+                                    location,
+                                    excludeQueryKeys: ['d']
+                                }));
+                            }
+                            onDelete(resources, redirectTo);
+                        }
                     }]
                 }
                 onClose={loading ? null : () => onClose()}
@@ -91,11 +130,15 @@ function DeleteResourcePlugin({
 const ConnectedDeleteResourcePlugin = connect(
     createSelector([
         state => state?.controls?.[ProcessTypes.DELETE_RESOURCE]?.value,
-        state => state?.controls?.[ProcessTypes.DELETE_RESOURCE]?.loading
-    ], (resources, loading) => ({
+        state => state?.controls?.[ProcessTypes.DELETE_RESOURCE]?.loading,
+        state => state?.router?.location,
+        getResourceData
+    ], (resources, loading, location, selectedResource) => ({
         resources,
         enabled: !!resources,
-        loading
+        loading,
+        location,
+        selectedResource
     })), {
         onClose: setControlProperty.bind(null, ProcessTypes.DELETE_RESOURCE, 'value', undefined),
         onDelete: processResources.bind(null, ProcessTypes.DELETE_RESOURCE)
@@ -134,14 +177,50 @@ const ConnectedDeleteButton = connect(
     }
 )((DeleteButton));
 
+function DeleteMenuItem({
+    resource,
+    authenticated,
+    onDelete
+}) {
+
+    if (!(authenticated && resource?.perms?.includes('delete_resourcebase'))) {
+        return null;
+    }
+
+    return (
+        <Dropdown.Item
+            onClick={() =>
+                onDelete([resource])
+            }
+        >
+            <FaIcon name="trash" />{' '}
+            <Message msgId="gnhome.delete" />
+        </Dropdown.Item>
+    );
+}
+
+const ConnectedMenuItem = connect(
+    createSelector([isLoggedIn], (authenticated) => ({ authenticated })),
+    {
+        onDelete: setControlProperty.bind(null, ProcessTypes.DELETE_RESOURCE, 'value')
+    }
+)((DeleteMenuItem));
+
 export default createPlugin('DeleteResource', {
     component: ConnectedDeleteResourcePlugin,
     containers: {
         ActionNavbar: {
             name: 'DeleteResource',
             Component: ConnectedDeleteButton
+        },
+        ResourcesGrid: {
+            name: ProcessTypes.DELETE_RESOURCE,
+            target: 'cardOptions',
+            Component: ConnectedMenuItem
         }
     },
     epics: {},
-    reducers: {}
+    reducers: {
+        controls
+    }
 });

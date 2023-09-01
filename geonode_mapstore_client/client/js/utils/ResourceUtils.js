@@ -266,7 +266,7 @@ export const getResourceTypesInfo = () => ({
         })),
         formatDetailUrl: (resource) => resource?.detail_url && parseDevHostname(resource.detail_url),
         name: 'Dataset',
-        formatMetadataUrl: (resource) => (`/datasets/${resource.store}:${resource.alternate}/metadata`)
+        formatMetadataUrl: (resource) => (`/datasets/${resource.store ? resource.store + ":" : ''}${resource.alternate}/metadata`)
     },
     [ResourceTypes.MAP]: {
         icon: 'map',
@@ -585,13 +585,19 @@ export const parseMapConfig = (mapResponse, resource = {}) => {
     };
 };
 
-/**
-* Util to check if resosurce can be cloned (Save As)
+/*
+* Util to check if resource can be cloned (Save As)
 * Requirements for copying are 'add_resource' permission and is_copyable property on resource
+* the dataset and document need also the download_resourcebase permission
 */
 export const canCopyResource = (resource, user) => {
     const canAdd = user?.perms?.includes('add_resource');
     const canCopy = resource?.is_copyable;
+    const resourceType = resource?.resource_type;
+    if ([ResourceTypes.DATASET, ResourceTypes.DOCUMENT].includes(resourceType)) {
+        const canDownload = !!resource?.perms?.includes('download_resourcebase');
+        return (canAdd && canCopy && canDownload) ? true : false;
+    }
     return (canAdd && canCopy) ? true : false;
 };
 

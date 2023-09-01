@@ -37,11 +37,10 @@ import widgets from '@mapstore/framework/reducers/widgets';
 import annotations from '@mapstore/framework/reducers/annotations';
 // end
 
-import SearchRoute from '@js/routes/Search';
-import DetailRoute from '@js/routes/Detail';
 import ViewerRoute from '@js/routes/Viewer';
 import UploadDatasetRoute from '@js/routes/UploadDataset';
 import UploadDocumentRoute from '@js/routes/UploadDocument';
+import CatalogueRoute from '@js/routes/Catalogue';
 
 import gnsearch from '@js/reducers/gnsearch';
 import gnresource from '@js/reducers/gnresource';
@@ -59,9 +58,9 @@ import {
     setupConfiguration,
     initializeApp,
     getPluginsConfiguration,
-    storeEpicsCache
+    getPluginsConfigOverride
 } from '@js/utils/AppUtils';
-import { ResourceTypes } from '@js/utils/ResourceUtils';
+import { CATALOGUE_ROUTES, appRouteComponentTypes } from '@js/utils/AppRoutesUtils';
 import { updateGeoNodeSettings } from '@js/actions/gnsettings';
 import {
     gnCheckSelectedDatasetPermissions,
@@ -78,7 +77,7 @@ import gnsearchEpics from '@js/epics/gnsearch';
 import favoriteEpics from '@js/epics/favorite';
 import maplayout from '@mapstore/framework/reducers/maplayout';
 
-import pluginsDefinition from '@js/plugins/index';
+import pluginsDefinition, { storeEpicsNamesToExclude } from '@js/plugins/index';
 import ReactSwipe from 'react-swipeable-views';
 import SwipeHeader from '@mapstore/framework/components/data/identify/SwipeHeader';
 
@@ -96,109 +95,19 @@ const requires = {
 const DEFAULT_LOCALE = {};
 const ConnectedRouter = connect(
     (state) => ({
-        locale: state?.locale || DEFAULT_LOCALE
+        locale: state?.locale || DEFAULT_LOCALE,
+        user: state?.security?.user || null
     })
 )(Router);
 
-const routes = [
-    {
-        name: 'dataset_viewer',
-        path: [
-            '/dataset/:pk'
-        ],
-        pageConfig: {
-            resourceType: ResourceTypes.DATASET
-        },
-        component: ViewerRoute
-    },
-    {
-        name: 'dataset_edit_data_viewer',
-        path: [
-            '/dataset/:pk/edit/data'
-        ],
-        pageConfig: {
-            resourceType: ResourceTypes.DATASET
-        },
-        component: ViewerRoute
-    },
-    {
-        name: 'dataset_edit_style_viewer',
-        path: [
-            '/dataset/:pk/edit/style'
-        ],
-        pageConfig: {
-            resourceType: ResourceTypes.DATASET
-        },
-        component: ViewerRoute
-    },
-    {
-        name: 'map_viewer',
-        path: [
-            '/map/:pk'
-        ],
-        pageConfig: {
-            resourceType: ResourceTypes.MAP
-        },
-        component: ViewerRoute
-    },
-    {
-        name: 'geostory_viewer',
-        path: [
-            '/geostory/:pk'
-        ],
-        pageConfig: {
-            resourceType: ResourceTypes.GEOSTORY
-        },
-        component: ViewerRoute
-    },
-    {
-        name: 'document_viewer',
-        path: [
-            '/document/:pk'
-        ],
-        pageConfig: {
-            resourceType: ResourceTypes.DOCUMENT
-        },
-        component: ViewerRoute
-    },
-    {
-        name: 'dashboard_viewer',
-        path: [
-            '/dashboard/:pk'
-        ],
-        pageConfig: {
-            resourceType: ResourceTypes.DASHBOARD
-        },
-        component: ViewerRoute
-    },
-    {
-        name: 'resources',
-        path: [
-            '/',
-            '/search/',
-            '/search/filter'
-        ],
-        component: SearchRoute
-    },
-    {
-        name: 'detail',
-        path: [
-            '/detail/:pk',
-            '/detail/:ctype/:pk'
-        ],
-        component: DetailRoute
-    },
-    {
-        name: 'upload_dataset',
-        path: ['/upload/dataset'],
-        component: UploadDatasetRoute
-    },
-    {
-        name: 'upload_document',
-        path: ['/upload/document'],
-        component: UploadDocumentRoute
-    }
-];
+const viewers = {
+    [appRouteComponentTypes.VIEWER]: ViewerRoute,
+    [appRouteComponentTypes.CATALOGUE]: CatalogueRoute,
+    [appRouteComponentTypes.DATASET_UPLOAD]: UploadDatasetRoute,
+    [appRouteComponentTypes.DOCUMENT_UPLOAD]: UploadDocumentRoute
+};
+
+const routes = CATALOGUE_ROUTES.map(({ component, ...config }) => ({ ...config, component: viewers[component] }));
 
 initializeApp();
 
@@ -242,7 +151,7 @@ Promise.all([
                     ...timelineEpics
                 };
 
-                storeEpicsCache(appEpics);
+                storeEpicsNamesToExclude(appEpics);
 
                 // register custom arcgis layer
                 import('@js/map/' + mapType + '/plugins/ArcGisMapServer')
@@ -268,8 +177,7 @@ Promise.all([
                                 }
                             },
                             themeCfg: null,
-                            pluginsConfig: getPluginsConfiguration(localConfig.plugins, pluginsConfigKey),
-                            lazyPlugins: pluginsDefinition.lazyPlugins,
+                            pluginsConfig: getPluginsConfigOverride(getPluginsConfiguration(localConfig.plugins, pluginsConfigKey)),
                             pluginsDef: {
                                 plugins: {
                                     ...pluginsDefinition.plugins

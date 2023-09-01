@@ -27,24 +27,26 @@ const ResourceCard = forwardRef(({
     layoutCardsStyle,
     buildHrefByTemplate,
     readOnly,
-    actions,
-    onAction,
     className,
     loading,
     featured,
     onClick,
     downloading,
-    onDownload
+    getDetailHref = (res) => formatHref({
+        pathname: `/detail/${res.resource_type}/${res.pk}`
+    })
 }, ref) => {
     const res = data;
     const types = getTypesInfo();
     const { icon } = types[res.subtype] || types[res.resource_type] || {};
     const {
         formatDetailUrl = resource => resource?.detail_url,
-        canPreviewed
+        canPreviewed, hasPermission
     } = res && (types[res.subtype] || types[res.resource_type]) || {};
     const detailUrl = res?.pk && formatDetailUrl(res);
     const resourceCanPreviewed = res?.pk && canPreviewed && canPreviewed(res);
+    const canView = res?.pk && hasPermission && hasPermission(res);
+
     const metadataDetailUrl = res?.pk && getMetadataDetailUrl(res);
 
     const [imgError, setImgError] = useState(false);
@@ -66,9 +68,7 @@ const ResourceCard = forwardRef(({
             {!readOnly && (
                 <a
                     className="gn-resource-card-link"
-                    href={formatHref({
-                        pathname: `/detail/${res.resource_type}/${res.pk}`
-                    })}
+                    href={getDetailHref(res)}
                 />
             )}
             {!readOnly &&
@@ -77,12 +77,9 @@ const ResourceCard = forwardRef(({
                 layoutCardsStyle === 'grid' && (
                 <ActionButtons
                     buildHrefByTemplate={buildHrefByTemplate}
-                    actions={actions}
                     resource={res}
                     options={options}
                     readOnly={readOnly}
-                    onAction={onAction}
-                    onDownload={onDownload}
                 />
             )}
             <div className={`card-resource-${layoutCardsStyle}`}>
@@ -124,9 +121,7 @@ const ResourceCard = forwardRef(({
                                             : 'gn-card-title'
                                     }
                                     readOnly={readOnly}
-                                    href={formatHref({
-                                        pathname: `/detail/${res.resource_type}/${res.pk}`
-                                    })}
+                                    href={getDetailHref(res)}
                                 >
                                     {res.title}
                                 </ALink>
@@ -144,12 +139,9 @@ const ResourceCard = forwardRef(({
                             layoutCardsStyle === 'list' && (
                             <ActionButtons
                                 buildHrefByTemplate={buildHrefByTemplate}
-                                actions={actions}
                                 resource={res}
                                 options={options}
                                 readOnly={readOnly}
-                                onAction={onAction}
-                                onDownload={onDownload}
                             />
                         )}
                     </div>
@@ -179,11 +171,7 @@ const ResourceCard = forwardRef(({
                                     >
                                         <Button
                                             variant="primary"
-                                            href={
-                                                resourceCanPreviewed
-                                                    ? detailUrl
-                                                    : metadataDetailUrl
-                                            }
+                                            href={(resourceCanPreviewed || canView) ? detailUrl : metadataDetailUrl}
                                             rel="noopener noreferrer"
                                         >
                                             <Message msgId={`gnhome.view`} />

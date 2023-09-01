@@ -59,6 +59,8 @@
             "noPublicContentContent": "This catalog doesn’t have public resources. <br/> Please <a href=\"/account/signup/?next=/\">register</a> or <a href=\"/account/login/?next=/\">sign in</a> to browse the contents.",
             "noContentYetTitle": "Welcome to GeoNode",
             "noContentYetContent": "This catalog doesn’t have published contents yet. <br/> We’re working to populate it with great resources. <br/><br/>Stay tuned!",
+            "errorResourcePageTitle": "Page Loading Error",
+            "errorResourcePageContent": "The selected resources page is not available",
             "resourcesFound": "{count, plural, =0 {0 Resources found} =1 {1 Resource found} other {# Resources found}}",
             "filterApplied": "{count, plural, =0 {0 filters applied} =1 {1 filter applied} other {# filters applied}}",
             "noResultsWithFilterTitle": "No results",
@@ -75,7 +77,6 @@
             "logOut": "Log out",
             "terms": "Terms",
             "privacy": "Privacy",
-            "extent": "Extent",
             "enableFilterByExtent": "Enable filter by extent",
             "advancedSearch": "Advanced search",
             "apply": "Apply",
@@ -113,6 +114,8 @@
             "customFilterExample": "Custom filter (Global)",
             "copiedResourceUrl": "Resource url copied!",
             "copyResourceUrl": "Copy resource url",
+            "copiedCapabilitiesUrl": "WMS Capabilities url copied!",
+            "copyCapabilitiesUrl": "Copy WMS Capabilities url",
             "open": "Open",
             "share": "Share",
             "update": "Update",
@@ -126,7 +129,10 @@
             "createDataset": "Create dataset",
             "search": "Search...",
             "permissionsMissing": "You don't have permission to view or download the resource",
-            "filter": "Filter"
+            "filter": "Filter",
+            "noPreview": "A preview is not available for this resource",
+            "na": "N/A",
+            "emptyAccordion": "No items to display"
         },
         "viewer": {
             "document": {
@@ -267,7 +273,37 @@
 
             "filterPendingUploadDocument": "Filter uploads by name...",
             "filterNoMatchUploadDocument": "Filter does not match an upload",
-            "uploadDocument": "Upload a document"
+            "uploadDocument": "Upload a document",
+            "owner": "Owner",
+            "created": "Created",
+            "published": "Published",
+            "lastModified": "Last modified",
+            "resourceType": "Resource type",
+            "category": "Category",
+            "pointOfContact": "Point of contact",
+            "keywords": "Keywords",
+            "regions": "Regions",
+            "license": "License",
+            "attribution": "Attribution",
+            "restriction": "Restriction",
+            "edition": "Edition",
+            "maintenanceFrequency": "Maintenance frequency",
+            "language": "Language",
+            "purpose": "Purpose",
+            "dataQuality": "Data quality",
+            "temporalExtent": "Temporal Extent",
+            "spatialRepresentationType": "Spatial representation type",
+            "supplementalInformation": "Supplemental information",
+            "viewFullMetadata": "View full metadata",
+            "abstract": "Abstract",
+            "readMore": "Read more",
+            "readLess": "Read less",
+            "linkedResources": "Linked Resources",
+            "extent": "Extent",
+            "dateFilter": {
+                "from": "Date from",
+                "to": "Date to"
+            }
         }
     }
 }

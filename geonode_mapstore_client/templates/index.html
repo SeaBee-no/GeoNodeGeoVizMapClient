@@ -7,6 +7,8 @@
         <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://unpkg.com/@icon/icofont/icofont.css">
+        
         <link href="{% static 'mapstore/dist/themes/geonode.css' %}?{% client_version %}" rel="stylesheet" />
         <title>{{ SITE_NAME }}</title>
         <link rel="shortcut icon" href="{% static 'geonode/img/favicon.ico' %}" />
@@ -50,7 +52,10 @@
                 {% endblock %}
     
                 {% block ms_scripts %}
-                    <script id="gn-script" src="{% static 'mapstore/dist/js/gn-home.js' %}?{% client_version %}"></script>
+              
+
+                <script id="gn-script" src="{% static 'mapstore/dist/js/gn-home.js' %}?{% client_version %}"></script>
+            
                 {% endblock %}
     
                 {% block footer %}
@@ -58,12 +63,28 @@
                 {% endblock %}
     
                 {% block scripts %}
+
                     <script src="{% static "lib/js/jquery.min.js" %}"></script>
                     <script src="{% static "lib/js/bootstrap.min.js" %}"></script>
-                    <script type="text/javascript">
-                        // enable dropdown functionalities
-                        $('.dropdown-toggle').dropdown();
-                    </script>
+                
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.0/jquery.waypoints.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.counterup@2.1.0/jquery.counterup.min.js"></script>
+
+
+<script type="text/javascript">
+    // enable dropdown functionalities
+    $('.dropdown-toggle').dropdown();
+
+    // jQuery counterUp
+    $('[data-toggle="counter-up"]').counterUp({
+        delay: 20,
+        time: 1000
+    });
+
+
+</script>
+
                 {% endblock %}
             </div>
         </div>

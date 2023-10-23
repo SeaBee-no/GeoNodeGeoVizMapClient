@@ -39468,3 +39468,59 @@
   font-size: 13px;
   color: #fff
 }
+
+
+
+
+
+/*--------------------------------------------------------------
+# Counts
+--------------------------------------------------------------*/
+.counts {
+ /* padding-bottom: 30px; */
+ margin-top: 70px;
+}
+
+.counts .count-box {
+  padding: 30px;
+  width: 100%;
+}
+
+.counts .count-box i {
+  display: block;
+  font-size: 44px;
+  color: #67b0d1;
+  float: left;
+}
+
+.counts .count-box span {
+  font-size: 48px;
+  line-height: 40px;
+  display: block;
+  font-weight: 700;
+  color: #2f4d5a;
+  margin-left: 60px;
+}
+
+.counts .count-box p {
+  padding: 15px 0 0 0;
+  margin: 0 0 0 60px;
+  font-family: "Raleway", sans-serif;
+  font-size: 14px;
+  color: #49788c;
+}
+
+.counts .count-box a {
+  font-weight: 600;
+  display: block;
+  margin-top: 20px;
+  color: #49788c;
+  font-size: 15px;
+  font-family: "Poppins", sans-serif;
+  transition: ease-in-out 0.3s;
+}
+
+.counts .count-box a:hover {
+  color: #6e9fb4;
+}
+/* Counter end */

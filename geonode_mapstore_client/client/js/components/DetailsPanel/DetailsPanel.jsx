@@ -557,7 +557,7 @@ function DetailsPanel({
                                     </Button>
                                     }
                                     {downloadUrl &&
-                                    <Button variant="default"
+                                    <Button variant="default" 
                                         onClick={() => onAction(resource)} >
                                         <FaIcon name="download" />
                                     </Button>}

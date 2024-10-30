@@ -24,7 +24,7 @@ const LeftContentMenu = ({ items, formatHref, query, variant, size, resourceName
     }, [widthNavbarLeft, widthContentLeft]);
 
     return (
-        <div
+        <div 
             className={`gn-menu-content-side gn-menu-content-left`}
             ref={navbarContentLeft}
         >

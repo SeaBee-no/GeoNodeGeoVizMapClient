@@ -31975,8 +31975,13 @@
 .msgapi .gn-details-panel-title .gn-details-panel-tools {
   align-items: center;
   display: flex;
-  justify-content: flex-end
+  justify-content: flex-end;
 }
+
+/*Injected code seabee*/
+/* .gn-details-panel-tools button:nth-child(3) {
+  display: none;
+} */
 
 .msgapi .gn-details-panel-title .inEdit {
   align-items: center;
@@ -32666,8 +32671,23 @@
 }
 
 .msgapi .gn-menu .gn-menu-list>li>* {
-  margin-right: .4rem
+  margin-right: .4rem;
+
 }
+
+
+/* .msgapi .gn-menu .gn-menu-list>li>div>button>span {
+visibility: hidden;
+
+} */
+
+/* .msgapi .gn-menu .gn-menu-list > li > div > span:contains('Download') {
+  visibility: hidden !important;
+} */
+
+
+
+
 
 .msgapi .gn-menu .gn-menu-list img {
   height: 2.5rem;

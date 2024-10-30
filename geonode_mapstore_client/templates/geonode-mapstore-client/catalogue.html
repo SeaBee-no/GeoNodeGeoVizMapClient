@@ -59,6 +59,34 @@
                     <script type="text/javascript">
                         // enable dropdown functionalities
                         $('.dropdown-toggle').dropdown();
+
+                            $(document).ready(function () {
+
+                                // seabee inject code
+
+                                setTimeout(() => {
+                                    document.querySelectorAll('.msgapi .gn-menu .gn-menu-list>li').forEach(li => {
+                                        const span = li.querySelector('div>button>span');
+                                        if (span && span.textContent.includes('Download')) {
+                                            li.style.display = 'none';
+                                        }
+                                    });
+
+
+                                    document.querySelectorAll('.gn-details-panel-tools button').forEach(button => {
+                                        const icon = button.querySelector('i.fa-download');
+                                        if (icon) {
+                                            button.style.display = 'none';
+                                        }
+                                    });
+
+
+                                }, 5000);
+
+                            });
+
+
+
                     </script>
                 {% endblock %}
             </div>
